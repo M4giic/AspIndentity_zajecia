@@ -56,9 +56,14 @@ namespace IdentityNetCore.Controllers
                         UserName = model.Email
                     };
 
-                   var result = await _userManager.CreateAsync(user, model.Password);
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                    //zeby byla pewnosc ze to odpowiedni user
+                    user = await _userManager.FindByEmailAsync(model.Email);
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     if (result.Succeeded)
                     {
+                        var confirmationLink = Url.Action("ConfirmEmail","Identity", new {userId = user.Id, @token = token});
+                        await emailSender.SendEmailAsync("infoshare@mydomain.com", user.Email, "ConfirmationLink", confirmationLink);
                         var claim = new Claim("Department", model.Department);
                         await _userManager.AddClaimAsync(user, claim);
                         await _userManager.AddToRoleAsync(user, model.Role);

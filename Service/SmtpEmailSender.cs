@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Mailjet.Client;
+using Mailjet.Client.Resources;
+using Mailjet.Client.TransactionalEmails;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -7,22 +10,29 @@ namespace IdentityNetCore.Service
 {
     public class SmtpEmailSender : IEmailSender
     {
-        private readonly IOptions<SmtpOptions> options;
+        private readonly IMailjetClient _mailjetClient;
 
-        public SmtpEmailSender(IOptions<SmtpOptions> options)
+        public SmtpEmailSender(IMailjetClient mailjetClient)
         {
-            this.options = options;
+            _mailjetClient = mailjetClient;
         }
+
         public async Task SendEmailAsync(string fromAddress, string toAddress, string subject, string message)
         {
-            var mailMessage = new MailMessage(fromAddress, toAddress, subject, message);
-            using (var client = new SmtpClient(options.Value.Host, options.Value.Port)
+            MailjetRequest request = new MailjetRequest
             {
-                Credentials = new NetworkCredential(options.Value.Username, options.Value.Password)
-            })
-            {
-                await client.SendMailAsync(mailMessage);
-            }
+                Resource = Send.Resource
+            };
+
+            var email = new TransactionalEmailBuilder()
+                   .WithFrom(new SendContact("from@test.com"))
+                   .WithSubject("Test subject")
+                   .WithHtmlPart("<h1>Header</h1>")
+                   .WithTo(new SendContact("to@test.com"))
+                   .Build();
+
+            var response = await _mailjetClient.SendTransactionalEmailAsync(email);
+
         }
     }
 }
