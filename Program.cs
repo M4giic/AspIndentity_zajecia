@@ -1,7 +1,9 @@
 using AspIndentity_zajecia;
+using AspIndentity_zajecia.Service;
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices(builder.Configuration);
 
+builder.Services.Configure<EmailOptions>(
+    builder.Configuration.GetSection(key: nameof(EmailOptions)));
+
 var app = builder.Build();
+
+builder.Logging.AddConsole();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

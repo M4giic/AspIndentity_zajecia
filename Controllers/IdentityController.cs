@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AspIndentity_zajecia.Service;
 using IdentityNetCore.Models;
 using IdentityNetCore.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace IdentityNetCore.Controllers
 {
@@ -17,13 +19,22 @@ namespace IdentityNetCore.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender emailSender;
+        private readonly ILogger<IdentityController> _logger;
+        private readonly EmailOptions emailOptions;
 
-        public IdentityController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender)
+        public IdentityController(UserManager<IdentityUser> userManager, 
+            SignInManager<IdentityUser> signInManager, 
+            RoleManager<IdentityRole> roleManager, 
+            IEmailSender emailSender, 
+            ILogger<IdentityController> logger,
+            IOptions<EmailOptions> emailOptions)
         {
             _userManager = userManager;
             this._signInManager = signInManager;
             this._roleManager = roleManager;
             this.emailSender = emailSender;
+            _logger = logger;
+            this.emailOptions = emailOptions.Value;
         }
         public async Task<IActionResult> Signup()
         {
@@ -63,7 +74,7 @@ namespace IdentityNetCore.Controllers
                     if (result.Succeeded)
                     {
                         var confirmationLink = Url.Action("ConfirmEmail","Identity", new {userId = user.Id, @token = token});
-                        await emailSender.SendEmailAsync("infoshare@mydomain.com", user.Email, "ConfirmationLink", confirmationLink);
+                        await emailSender.SendEmailAsync(emailOptions.SenderEmail, user.Email, "ConfirmationLink", confirmationLink);
                         var claim = new Claim("Department", model.Department);
                         await _userManager.AddClaimAsync(user, claim);
                         await _userManager.AddToRoleAsync(user, model.Role);
@@ -72,6 +83,10 @@ namespace IdentityNetCore.Controllers
 
                     ModelState.AddModelError("Signup", string.Join("", result.Errors.Select(x => x.Description)));
                     return View(model);
+                }
+                else
+                {
+                    return RedirectToAction("EmailUsed");
                 }
             }
 
@@ -123,6 +138,11 @@ namespace IdentityNetCore.Controllers
         }
 
         public async Task<IActionResult> AccessDenied()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> EmailUsed()
         {
             return View();
         }

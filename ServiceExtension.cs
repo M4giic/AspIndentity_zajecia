@@ -1,4 +1,5 @@
-﻿using IdentityNetCore.Data;
+﻿using AspIndentity_zajecia.Service;
+using IdentityNetCore.Data;
 using IdentityNetCore.Service;
 using Mailjet.Client;
 using Microsoft.AspNetCore.Identity;
@@ -33,6 +34,7 @@ namespace AspIndentity_zajecia
 
             });
 
+
             services.ConfigureApplicationCookie(option => {
                 option.LoginPath = "/Identity/Signin";
                 option.AccessDeniedPath = "/Identity/AccessDenied";
@@ -54,11 +56,11 @@ namespace AspIndentity_zajecia
             });
 
             services.AddControllersWithViews();
-            var key = configuration["EmailProvider:ApiKey"];
             services.AddHttpClient<IMailjetClient, MailjetClient>(client =>
             {
                 client.SetDefaultSettings();
-                client.UseBasicAuthentication(configuration["EmailProvider:ApiKey"], configuration["EmailProvider:ApiSecret"]);
+                client.UseBasicAuthentication(configuration["EmailOptions:ApiKey"], 
+                    configuration["EmailOptions:ApiSecret"]);
             });
 
             return services;
