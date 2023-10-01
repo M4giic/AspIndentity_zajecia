@@ -16,7 +16,9 @@ namespace AspIndentity_zajecia
             services.AddDbContext<ApplicationDBContext>(o =>
                 o.UseNpgsql(connString)
             );
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDBContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDBContext>()
+                .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options => {
 
