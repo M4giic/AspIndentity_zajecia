@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AspIndentity_zajecia.Models;
 using AspIndentity_zajecia.Service;
 using IdentityNetCore.Models;
 using IdentityNetCore.Service;
@@ -38,7 +39,7 @@ namespace IdentityNetCore.Controllers
         }
         public async Task<IActionResult> Signup()
         {
-            var model = new SignupViewModel() {Role = "Member" };
+            var model = new SignupViewModel() {Role = Roles.Member };
             return View(model);
         }
 
@@ -47,9 +48,9 @@ namespace IdentityNetCore.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (!(await _roleManager.RoleExistsAsync(model.Role)))
+                if (!(await _roleManager.RoleExistsAsync(model.Role.ToString())))
                 {
-                    var role = new IdentityRole {Name = model.Role };
+                    var role = new IdentityRole {Name = model.Role.ToString() };
                     var roleResult = await _roleManager.CreateAsync(role);
                     if (!roleResult.Succeeded)
                     {
@@ -77,7 +78,7 @@ namespace IdentityNetCore.Controllers
                         await emailSender.SendEmailAsync(emailOptions.SenderEmail, user.Email, "ConfirmationLink", confirmationLink);
                         var claim = new Claim("Department", model.Department);
                         await _userManager.AddClaimAsync(user, claim);
-                        await _userManager.AddToRoleAsync(user, model.Role);
+                        await _userManager.AddToRoleAsync(user, model.Role.ToString());
                         return RedirectToAction("Signin");
                     }
 

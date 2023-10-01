@@ -1,4 +1,5 @@
-﻿using AspIndentity_zajecia.Service;
+﻿using AspIndentity_zajecia.Models;
+using AspIndentity_zajecia.Service;
 using IdentityNetCore.Data;
 using IdentityNetCore.Service;
 using Mailjet.Client;
@@ -46,12 +47,12 @@ namespace AspIndentity_zajecia
 
                 option.AddPolicy("MemberDep", p => {
 
-                    p.RequireClaim("Department", "Tech").RequireRole("Member");
+                    p.RequireClaim("Department", "Tech").RequireRole(Roles.Member.ToString());
                 });
 
                 option.AddPolicy("AdminDep", p => {
 
-                    p.RequireClaim("Department", "Tech").RequireRole("Admin");
+                    p.RequireClaim("Department", "Tech").RequireRole(Roles.Admin.ToString());
                 });
             });
 

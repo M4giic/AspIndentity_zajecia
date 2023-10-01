@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AspIndentity_zajecia.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityNetCore.Models
 {
@@ -13,7 +14,7 @@ namespace IdentityNetCore.Models
         public string Password { get; set; }
 
         [Required]
-        public string Role { get; set; }
+        public Roles Role { get; set; }
 
         [Required]
         public string Department { get; set; }
